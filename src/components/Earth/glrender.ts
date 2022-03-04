@@ -1,12 +1,16 @@
 import * as THREE from "three";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 
 import { BaseThree } from "@/utils/basethree";
+import { bloomLayerNum, initBloom } from "@/utils/setbloom";
+import { setEarthSphere } from "@/components/Earth/earthsphere";
 
 import { Heatmap } from "@/components/Earth/heatmap";
 import { FlyLine } from "@/components/Earth/flyline";
 import { FeaturePoi } from "@/components/Earth/featurepoint";
 
 let earth: THREE.Mesh<THREE.SphereGeometry, THREE.Material>,
+  earthLight: THREE.Mesh,
   ambientLight: THREE.AmbientLight,
   hemisLight: THREE.HemisphereLight,
   baseThree: BaseThree,
@@ -14,6 +18,7 @@ let earth: THREE.Mesh<THREE.SphereGeometry, THREE.Material>,
   flyLine: FlyLine,
   heatmapMesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>,
   featurePoint: FeaturePoi,
+  composer: EffectComposer,
   changeHeatmap: any;
 
 const init = (domContainer: HTMLDivElement) => {
@@ -23,39 +28,38 @@ const init = (domContainer: HTMLDivElement) => {
   baseThree.orbitControl.maxDistance = 42;
 
   ambientLight = new THREE.AmbientLight(0x555555);
+  ambientLight.layers.enable(0);
+  ambientLight.layers.enable(bloomLayerNum);
   baseThree.scene.add(ambientLight);
 
   hemisLight = new THREE.HemisphereLight(0xffffff, 0x080820, 1);
+  hemisLight.layers.enable(0);
+  hemisLight.layers.enable(bloomLayerNum);
   hemisLight.position.copy(baseThree.camera.position);
   baseThree.scene.add(hemisLight);
 
-  const geometry = new THREE.SphereGeometry(10, 32, 32);
+  composer = initBloom(baseThree.scene, baseThree.camera, baseThree.renderer);
 
-  const earthPng = require("@/assets/earth/earth.jpg");
-  const bumpPng = require("@/assets/earth/earth_bump.jpg");
-  const specPng = require("@/assets/earth/earth_spec.jpg");
+  const { earthMesh, earthLightMesh } = setEarthSphere();
 
-  const materia = new THREE.MeshPhongMaterial({
-    map: new THREE.TextureLoader().load(earthPng),
-    bumpMap: new THREE.TextureLoader().load(bumpPng),
-    bumpScale: 0.15,
-    specularMap: new THREE.TextureLoader().load(specPng),
-    specular: new THREE.Color("#909090"),
-    shininess: 5,
-    transparent: true,
-    color: 0xf7e7cf,
-    // wireframe: true
-  });
+  earth = earthMesh;
+  earthLight = earthLightMesh;
 
-  earth = new THREE.Mesh(geometry, materia);
-  baseThree.camera.lookAt(earth.position);
-
-  baseThree.scene.add(earth);
+  baseThree.scene.add(earthMesh);
+  baseThree.scene.add(earthLightMesh);
 };
 
 const animate = () => {
   animateFrame = requestAnimationFrame(animate);
   hemisLight.position.copy(baseThree.camera.position);
+  baseThree.renderer.autoClear = false;
+
+  baseThree.renderer.clear();
+  baseThree.camera.layers.set(bloomLayerNum);
+  composer.render();
+
+  baseThree.renderer.clearDepth();
+  baseThree.camera.layers.set(0);
   baseThree.renderer.render(baseThree.scene, baseThree.camera);
   baseThree.orbitControl.update();
 };
@@ -80,6 +84,7 @@ const openHeatmap = async () => {
   const heatmapMateria = new THREE.MeshBasicMaterial({
     map: new THREE.CanvasTexture(heatmap.canvas),
     transparent: true,
+    depthTest: false,
   });
   heatmapMesh = new THREE.Mesh(earth.geometry, heatmapMateria);
   earth.add(heatmapMesh);
@@ -94,6 +99,7 @@ const openHeatmap = async () => {
       const tempMateria = new THREE.MeshBasicMaterial({
         map: new THREE.CanvasTexture(heatmap.canvas),
         transparent: true,
+        depthTest: false,
       });
 
       heatmapMesh.material = tempMateria;
@@ -167,10 +173,15 @@ const destroy = () => {
   closeFeaturePoint();
   earth.geometry.dispose();
   earth.material.dispose();
-  earth.children.forEach((item: any) => {
-    item.geometry.dispose();
-    item.material.dispose();
-  });
+  earthLight.geometry.dispose();
+  // @ts-ignore
+  earthLight.material.dispose();
+  while (earth.children.length > 0) {
+    (earth.children[0] as THREE.Mesh).geometry.dispose();
+    // @ts-ignore
+    (areaMesh.children[0] as THREE.Mesh).material.dispose();
+    earth.remove(earth.children[0]);
+  }
   baseThree.destroy();
 };
 
