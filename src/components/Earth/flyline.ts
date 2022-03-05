@@ -8,7 +8,6 @@ const fs = `
     uniform vec3 color;
     void main(){
       if(opacity <= 0.1) {
-        // gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
         discard;
       } else {
         gl_FragColor = vec4(color, 1.0);
@@ -130,15 +129,12 @@ class FlyLine {
       }
       geometry.setAttribute("percent", new THREE.BufferAttribute(percents, 1));
 
-      // const number = 500;
-      // console.log(number);
       const uniforms = {
         time: {
           value: 0.3,
         },
         number: {
           value: this.number,
-          // value: 500
         },
         speed: {
           value: 0.003,

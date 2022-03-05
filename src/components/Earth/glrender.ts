@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 
 import { BaseThree } from "@/utils/basethree";
-import { bloomLayerNum, initBloom } from "@/utils/setbloom";
+import { bloomLayerNum, initBloom, render } from "@/utils/setbloom";
 import { setEarthSphere } from "@/components/Earth/earthsphere";
 
 import { Heatmap } from "@/components/Earth/heatmap";
@@ -19,7 +19,8 @@ let earth: THREE.Mesh<THREE.SphereGeometry, THREE.Material>,
   heatmapMesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>,
   featurePoint: FeaturePoi,
   composer: EffectComposer,
-  changeHeatmap: any;
+  heatmap: Heatmap,
+  changeHeatmap: () => void;
 
 const init = (domContainer: HTMLDivElement) => {
   baseThree = new BaseThree(domContainer);
@@ -52,15 +53,9 @@ const init = (domContainer: HTMLDivElement) => {
 const animate = () => {
   animateFrame = requestAnimationFrame(animate);
   hemisLight.position.copy(baseThree.camera.position);
-  baseThree.renderer.autoClear = false;
 
-  baseThree.renderer.clear();
-  baseThree.camera.layers.set(bloomLayerNum);
-  composer.render();
+  render(baseThree.scene, baseThree.camera, baseThree.renderer, composer);
 
-  baseThree.renderer.clearDepth();
-  baseThree.camera.layers.set(0);
-  baseThree.renderer.render(baseThree.scene, baseThree.camera);
   baseThree.orbitControl.update();
 };
 
@@ -74,11 +69,11 @@ const openHeatmap = async () => {
       0.6: "rgba(44,222,148,0.6)",
       0.8: "rgba(254,237,83,0.8)",
       0.9: "rgba(255,118,50,0.9)",
-      1: "rgba(255,64,28,1)",
+      1.0: "rgba(255,64,28,1)",
     },
   };
 
-  const heatmap = new Heatmap(config);
+  heatmap = new Heatmap(config);
   await heatmap.setHeatmap();
 
   const heatmapMateria = new THREE.MeshBasicMaterial({
@@ -116,6 +111,7 @@ const closeHeatmap = () => {
     earth.remove(heatmapMesh);
     heatmapMesh.geometry.dispose();
     heatmapMesh.material.dispose();
+    heatmap.clearCanvas();
     baseThree.removeChange(changeHeatmap);
   }
 };

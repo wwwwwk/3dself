@@ -36,4 +36,23 @@ const initBloom = (
   return composer;
 };
 
-export { bloomLayerNum, initBloom };
+const render = (
+  scene: THREE.Scene,
+  camera: THREE.PerspectiveCamera,
+  renderer: THREE.WebGLRenderer,
+  composer: EffectComposer | null = null
+) => {
+  if (composer) {
+    renderer.autoClear = false;
+
+    renderer.clear();
+    camera.layers.set(bloomLayerNum);
+    composer?.render();
+  }
+
+  renderer.clearDepth();
+  camera.layers.set(0);
+  renderer.render(scene, camera);
+};
+
+export { bloomLayerNum, initBloom, render };
