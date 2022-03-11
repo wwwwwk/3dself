@@ -47,6 +47,8 @@ let waterMesh: THREE.Mesh;
 let greenLandMesh: THREE.Mesh;
 let requestAnimationId: number;
 
+
+// 废弃
 const setBuildingMesh = (shape: THREE.Shape, height: number) => {
   const buildingColor = require("@/assets/city/buildingcolor2.png");
   const buildingByte = require("@/assets/city/buildingbyte.png");
@@ -131,7 +133,7 @@ const setAreaMesh = (result: any[]) => {
     }
     const geometry = new THREE.ShapeGeometry(shape);
     const tmpMateria = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(0x00007f),
+      color: new THREE.Color(0x000000),
       // envMap: cubeMap,
       depthTest: false,
     });

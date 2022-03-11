@@ -18,8 +18,8 @@ export default {
 
     const roomContainer = ref();
 
-    onMounted(() => {
-      init(roomContainer.value, setPopupShowState);
+    onMounted(async () => {
+      await init(roomContainer.value, setPopupShowState);
       setCurrentSceneState(baseThree);
       animate();
       // baseThree.startRotate();

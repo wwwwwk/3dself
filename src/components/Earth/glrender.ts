@@ -24,9 +24,10 @@ let earth: THREE.Mesh<THREE.SphereGeometry, THREE.Material>,
 
 const init = (domContainer: HTMLDivElement) => {
   baseThree = new BaseThree(domContainer);
-  baseThree.camera.position.set(0, 0, 30);
+  baseThree.camera.position.set(-8, 20, -30);
   baseThree.orbitControl.minDistance = 22;
   baseThree.orbitControl.maxDistance = 42;
+  baseThree.setCameraPosition();
 
   ambientLight = new THREE.AmbientLight(0x555555);
   ambientLight.layers.enable(0);
@@ -61,14 +62,13 @@ const animate = () => {
 
 const openHeatmap = async () => {
   const config = {
-    radius: 20,
+    radius: 10,
     gradient: {
-      0.2: "rgba(0,0,255,0.2)",
-      0.3: "rgba(43,111,231,0.3)",
-      0.4: "rgba(2,192,241,0.4)",
-      0.6: "rgba(44,222,148,0.6)",
-      0.8: "rgba(254,237,83,0.8)",
-      0.9: "rgba(255,118,50,0.9)",
+      0.1: "rgba(0,0,255,1)",
+      0.3: "rgba(43,111,231,1)",
+      0.4: "rgba(2,192,241,1)",
+      0.6: "rgba(44,222,148,1)",
+      0.8: "rgba(254,246,104,1)",
       1.0: "rgba(255,64,28,1)",
     },
   };
@@ -88,7 +88,7 @@ const openHeatmap = async () => {
     const zoom = baseThree.zoom;
     const oldZoom = baseThree.oldZoom;
     if (oldZoom !== zoom) {
-      const radius = ((zoom - 42) / (22 - 42)) * (5 - 20) + 20;
+      const radius = ((zoom - 42) / (22 - 42)) * (3 - 10) + 10;
       await heatmap.refresh(radius);
 
       const tempMateria = new THREE.MeshBasicMaterial({
@@ -170,6 +170,7 @@ const destroy = () => {
   earth.geometry.dispose();
   earth.material.dispose();
   earthLight.geometry.dispose();
+  if(heatmap) heatmap.clearCanvas();
   // @ts-ignore
   earthLight.material.dispose();
   while (earth.children.length > 0) {

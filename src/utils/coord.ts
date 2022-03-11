@@ -44,13 +44,13 @@ const spherePointDistance = (
 };
 
 /**
- * lon,lat 转至 2048*1024
+ * lon,lat 转至 1080*540
  * @params {number} lon
  * @params {number} lat
  */
 const lonlatToFlat = (lon: number, lat: number) => {
-  const x = ((lon - -180) / 360) * 2048;
-  const y = ((90 - lat) / 180) * 1024;
+  const x = ((lon - -180) / 360) * 1080;
+  const y = ((90 - lat) / 180) * 540;
   return { x, y };
 };
 

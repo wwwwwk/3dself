@@ -4,35 +4,35 @@ import { Easing, Tween } from "@tweenjs/tween.js";
 import { lonlatToSphere } from "@/utils/coord";
 
 const fs = `
-    varying float opacity;
-    uniform vec3 color;
-    void main(){
-      if(opacity <= 0.1) {
-        discard;
-      } else {
-        gl_FragColor = vec4(color, 1.0);
-      }
+  varying float opacity;
+  uniform vec3 color;
+  void main(){
+    if(opacity <= 0.1) {
+      discard;
+    } else {
+      gl_FragColor = vec4(color, 1.0);
     }
-  `;
+  }
+`;
 
 const vs = `
-    attribute float percent;
-    uniform float time;
-    uniform float number;
-    uniform float speed;
-    uniform float length;
-    uniform float size;
+  attribute float percent;
+  uniform float time;
+  uniform float number;
+  uniform float speed;
+  uniform float length;
+  uniform float size;
 
-    varying float opacity;
+  varying float opacity;
 
-    void main() {
-      float l = clamp(1.0 - length, 0.0, 1.0);
+  void main() {
+    float l = clamp(1.0 - length, 0.0, 1.0);
 
-      gl_PointSize = clamp(fract(percent * number + l - time * number * speed) - l, 0.0, 1.0) * size * (1.0 / length);
-      opacity = gl_PointSize / size;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `;
+    gl_PointSize = clamp(fract(percent * number + l - time * number * speed) - l, 0.0, 1.0) * size * (1.0 / length);
+    opacity = gl_PointSize / size;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
 
 class FlyLine {
   count: number[];
@@ -107,7 +107,7 @@ class FlyLine {
       const distance = curve.getLength();
       this.mainDistance.push(distance);
       this.curves.push(curve);
-      const points = curve.getPoints(500);
+      const points = curve.getPoints(this.number);
 
       result.push(points);
     }

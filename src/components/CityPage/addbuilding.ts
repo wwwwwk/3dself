@@ -2,12 +2,10 @@ import * as THREE from "three";
 
 const vs = `
   varying vec2 vUv;
-  varying vec3 fNormal;
   varying vec3 vPosition;
   void main()
   {
       vUv = uv;
-      fNormal=normal;
       vPosition=position;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
       gl_Position = projectionMatrix * mvPosition;
@@ -15,62 +13,96 @@ const vs = `
 `;
 
 const fs = `
-  uniform float time;
   varying vec2 vUv;
   uniform sampler2D colorTexture;
-  uniform sampler2D colorTexture1;
-  varying vec3 fNormal;
   varying vec3 vPosition;
-  void main( void ) {
-      vec2 position = vUv;
-      vec3 tempNomal= normalize(fNormal);
-      float power=step(1.2,abs(tempNomal.x));
-      vec4 colorb=texture2D(colorTexture1,position.xy);
-      vec4 colora = texture2D(colorTexture,vec2(vUv.x,fract(vUv.y-time))); 
-      if(power>1.2){
-          gl_FragColor =colorb;
-      }else{
-          gl_FragColor =colorb+colorb*colora;      
-      }         
+  void main() {
+    vec2 position = vUv;
+    vec4 colorb=texture2D(colorTexture,position.xy);
+
+    gl_FragColor =colorb;
   }
 `;
 
-const buildingColor = require("@/assets/city/buildingcolor2.png");
-const buildingByte = require("@/assets/city/buildingbyte.png");
-const texture = new THREE.TextureLoader().load(buildingColor);
-const texture1 = new THREE.TextureLoader().load(buildingByte);
+let buildingMesh: THREE.Mesh;
 
-const setBuildingMesh = (shape: THREE.Shape, height: number) => {
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    steps: 1,
-    depth: height,
-    bevelEnabled: false,
-    bevelThickness: 1,
-    bevelSize: 0,
-    bevelOffset: 0,
-    bevelSegments: 1,
-  });
-  const materia = new THREE.ShaderMaterial({
-    uniforms: {
-      time: {
-        value: 0.3,
-      },
-      colorTexture: {
-        value: texture,
-      },
-      colorTexture1: {
-        value: texture1
-      },
-    },
-    vertexShader: vs,
-    fragmentShader: fs,
-    // blending: THREE.AdditiveBlending,
-    transparent: true,
-    depthTest: false,
-    // side: THREE.DoubleSide,
-  });
-
-  return new THREE.Mesh(geometry, materia);
+const initCanvas = () => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 300;
+  canvas.height = 300;
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx!.createLinearGradient(0, 0, 0, 300);
+  gradient.addColorStop(0, "rgba(0, 162, 255, 1)");
+  gradient.addColorStop(0.2, "rgba(0, 162, 255, 0.4)");
+  gradient.addColorStop(1, "rgba(0, 162, 255, 0)");
+  ctx!.fillStyle = gradient;
+  ctx!.fillRect(0, 0, 300, 300);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.magFilter = THREE.NearestFilter;
+  texture.minFilter = THREE.NearestFilter;
+  document.body.appendChild(canvas);
+  return texture;
 };
 
-export { setBuildingMesh };
+const setBuildingMesh = (result: any[]) => {
+  const resultMesh = new THREE.Mesh();
+  // console.log(texture);
+  const texture = initCanvas();
+  for (let i = 0; i < result.length; i += 1) {
+    const shape = new THREE.Shape();
+    shape.moveTo(result[i].position[0], result[i].position[1]);
+    for (let j = 2; j < result[i].position.length; j += 2) {
+      shape.lineTo(result[i].position[j], result[i].position[j + 1]);
+    }
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      steps: 1,
+      depth: result[i].height,
+      bevelEnabled: false,
+      bevelThickness: 1,
+      bevelSize: 0,
+      bevelOffset: 0,
+      bevelSegments: 1,
+    });
+    const material1 = new THREE.ShaderMaterial({
+      uniforms: {
+        colorTexture: {
+          value: texture,
+        },
+      },
+      vertexShader: vs,
+      fragmentShader: fs,
+      transparent: true,
+      depthTest: false,
+      side: THREE.DoubleSide,
+    });
+    const material2 = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geometry, [material2, material1]);
+    resultMesh.add(mesh);
+  }
+
+  buildingMesh = resultMesh;
+
+  return resultMesh;
+};
+
+const destroyBuilding = () => {
+  if (buildingMesh) {
+    while (buildingMesh.children.length > 0) {
+      (buildingMesh.children[0] as THREE.Mesh).geometry.dispose();
+      // @ts-ignore
+      buildingMesh.children[0].material[0].dispose();
+      // @ts-ignore
+      buildingMesh.children[0].material[1].dispose();
+      buildingMesh.remove(buildingMesh.children[0]);
+    }
+    buildingMesh.geometry.dispose();
+    // @ts-ignore
+    buildingMesh.material.dispose();
+  }
+};
+
+export { setBuildingMesh, destroyBuilding };

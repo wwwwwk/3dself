@@ -15,10 +15,10 @@ class Heatmap {
   heatPluginData: any[] = [];
   constructor(config: heatmapOption) {
     this.config = config;
-    // this.createCanvas();
+
     const canvas = document.createElement("canvas");
-    canvas.width = 2048;
-    canvas.height = 1024;
+    canvas.width = 1080;
+    canvas.height = 540;
 
     this.canvas = canvas;
     this.context = this.canvas.getContext("2d");
@@ -28,13 +28,15 @@ class Heatmap {
     const temp: any[] = [];
     heatData.data.features.forEach((item: any) => {
       const target = lonlatToFlat(item.geometry.x, item.geometry.y);
-      const randomNum = Math.round(Math.random() * 20 + 40);
+      const randomNum = Math.round(Math.random());
 
       temp.push([Math.round(target.x), Math.round(target.y), randomNum]);
+      // temp.push([target.x, target.y, randomNum]);
       if (this.minnum > randomNum) this.minnum = randomNum;
       if (this.maxnum < randomNum) this.maxnum = randomNum;
     });
     this.heatPluginData = temp;
+    // console.log(this.heatPluginData);
   }
   async setHeatmap() {
     if (this.heatPluginData.length === 0) {
@@ -74,6 +76,7 @@ class Heatmap {
   }
   mapColors() {
     const palette = this.setColorPaint();
+    // console.log(palette);
     const img = this.context.getImageData(
       0,
       0,
@@ -81,7 +84,8 @@ class Heatmap {
       this.canvas.height
     );
     const imageData = img.data;
-    for (let i = 0; i < imageData.length; i++) {
+    // console.log(imageData);
+    for (let i = 3; i < imageData.length; i+=4) {
       const alpha = imageData[i];
       const offset = alpha * 4;
       if (!offset) continue;

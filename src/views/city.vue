@@ -18,9 +18,7 @@ export default {
       heatmapControl: false,
       flyLineControl: false,
       featurePointControl: false,
-      distanceBufferControl: false,
-      lightMaskControl: false,
-      citySpriteControl: false
+      videoFusion: false,
     });
   },
 };

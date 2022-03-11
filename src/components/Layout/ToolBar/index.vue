@@ -1,5 +1,5 @@
 <template>
-  <div class="toolbar-container">
+  <div :class="toolbarState.state.videoFusion?'toolbar-container right': 'toolbar-container'">
     <div
       :title="btnData.routeBtn.name"
       @click.stop.prevent="changeRoute"
@@ -28,7 +28,7 @@
     </div>
     <div
       :title="btnData.initBtn.name"
-      @click.stop.prevent=""
+      @click.stop.prevent="moveControl"
       v-if="toolbarState.state.initControl"
     >
       <img
@@ -79,41 +79,15 @@
       />
     </div>
     <div
-      :title="btnData.distanceBufferBtn.name"
-      @click.stop.prevent=""
-      v-if="toolbarState.state.distanceBufferControl"
+      :title="btnData.videoFusionBtn.name"
+      @click.stop.prevent="changeVideoFusionState"
+      v-if="toolbarState.state.videoFusion"
     >
       <img
         :src="
-          btnData.distanceBufferBtn.isChecked
-            ? btnData.distanceBufferBtn.checkSrc
-            : btnData.distanceBufferBtn.uncheckSrc
-        "
-      />
-    </div>
-    <div
-      :title="btnData.lightMaskBtn.name"
-      @click.stop.prevent=""
-      v-if="toolbarState.state.lightMaskControl"
-    >
-      <img
-        :src="
-          btnData.lightMaskBtn.isChecked
-            ? btnData.lightMaskBtn.checkSrc
-            : btnData.lightMaskBtn.uncheckSrc
-        "
-      />
-    </div>
-    <div
-      :title="btnData.citySpriteBtn.name"
-      @click.stop.prevent=""
-      v-if="toolbarState.state.citySpriteControl"
-    >
-      <img
-        :src="
-          btnData.citySpriteBtn.isChecked
-            ? btnData.citySpriteBtn.checkSrc
-            : btnData.citySpriteBtn.uncheckSrc
+          btnData.videoFusionBtn.isChecked
+            ? btnData.videoFusionBtn.checkSrc
+            : btnData.videoFusionBtn.uncheckSrc
         "
       />
     </div>
@@ -129,10 +103,16 @@ import {
   changeHeatmap,
   changeFlyline,
   changeFeaturePoint,
+  changeVideoFusionState,
 } from "./main";
 
-const toolbarState = inject("toolbarState");
+const toolbarState: any = inject("toolbarState");
 const currentScene: any = inject("currentScene");
+
+// let rightDistance: string;
+// watch(toolbarState, () => {
+//   rightDistance = toolbarState.state.videoFusion ? "370px" : "20px";
+// });
 
 const rotateControlMethod = () => {
   subRotateControl();
@@ -142,6 +122,10 @@ const rotateControlMethod = () => {
     currentScene.scene.destroyRotate();
   }
 };
+
+const moveControl = () => {
+  currentScene.scene.movetoInit();
+};
 </script>
 <style lang="less" scoped>
 .toolbar-container {
@@ -149,18 +133,23 @@ const rotateControlMethod = () => {
   height: fit-content;
   position: absolute;
   top: 20px;
+  // right: v-bind("rightDistance");
   right: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
   > div {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
   }
+}
+.right {
+  right: 370px;
 }
 </style>

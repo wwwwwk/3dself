@@ -66,7 +66,7 @@ const fs1 = `
   uniform vec3 color;
   varying vec3 vNormal;
   void main() {
-    float intensity = pow(c - dot(vNormal, vec3(0.0, 0.0, 1.0)), p);
+    float intensity = pow(c - dot(vNormal, vec3(0.0, 0.0, 0.7)), p);
     gl_FragColor = vec4(color, 1.0) * intensity;
   }
 `;
@@ -90,7 +90,7 @@ const setEarthSphere = () => {
   lookupTexture.magFilter = THREE.NearestFilter;
   lookupTexture.minFilter = THREE.NearestFilter;
   lookupTexture.needsUpdate = true;
-  console.log(lookupTexture);
+  // console.log(lookupTexture);
   // texture3
   const mapOutlinePng = require("@/assets/earth/earthoutline.png");
   const mapOutline = new THREE.TextureLoader().load(mapOutlinePng);
@@ -122,10 +122,10 @@ const setEarthSphere = () => {
     fragmentShader: fs1,
     uniforms: {
       c: {
-        value: 0.35,
+        value: 0.3,
       },
       p: {
-        value: 0.95,
+        value: 0.85,
       },
       color: {
         value: new THREE.Color(42 / 255, 68 / 255, 119 / 255),

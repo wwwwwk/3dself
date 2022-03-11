@@ -75,7 +75,6 @@ const cylinderBuffer = (position: any, radius: number) => {
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(1, 1);
-  // texture.needsUpdate = true;
   const geometry = new THREE.CylinderBufferGeometry(radius, radius, 1, 64);
   const materials = [
     new THREE.MeshBasicMaterial({

@@ -1,4 +1,4 @@
-import { reactive, readonly, inject } from "vue";
+import { reactive, readonly } from "vue";
 import router from "@/router/index";
 
 import {
@@ -9,6 +9,8 @@ import {
   openFeaturePoint,
   closeFeaturePoint,
 } from "@/components/Earth/glrender";
+
+import { addVideo, removeVideo } from "@/components/BuildingPage/glrender";
 
 const btnData = reactive({
   // 通用
@@ -39,33 +41,21 @@ const btnData = reactive({
   },
   flyLineBtn: {
     name: "飞线图",
-    checkSrc: require("@/assets/toolbar/heatmaps.png"),
-    uncheckSrc: require("@/assets/toolbar/heatmap.png"),
+    checkSrc: require("@/assets/toolbar/flylines.png"),
+    uncheckSrc: require("@/assets/toolbar/flyline.png"),
     isChecked: false,
   },
   featurePointBtn: {
     name: "特征点图",
-    checkSrc: require("@/assets/toolbar/heatmaps.png"),
-    uncheckSrc: require("@/assets/toolbar/heatmap.png"),
+    checkSrc: require("@/assets/toolbar/featurepoints.png"),
+    uncheckSrc: require("@/assets/toolbar/featurepoint.png"),
     isChecked: false,
   },
-  // 城市
-  distanceBufferBtn: {
-    name: "缓冲区图",
-    checkSrc: require("@/assets/toolbar/heatmaps.png"),
-    uncheckSrc: require("@/assets/toolbar/heatmap.png"),
-    isChecked: false,
-  },
-  lightMaskBtn: {
-    name: "光罩图",
-    checkSrc: require("@/assets/toolbar/heatmaps.png"),
-    uncheckSrc: require("@/assets/toolbar/heatmap.png"),
-    isChecked: false,
-  },
-  citySpriteBtn: {
-    name: "poi点",
-    checkSrc: require("@/assets/toolbar/heatmaps.png"),
-    uncheckSrc: require("@/assets/toolbar/heatmap.png"),
+  //建筑
+  videoFusionBtn: {
+    name: "视频融合",
+    checkSrc: require("@/assets/toolbar/videofusions.png"),
+    uncheckSrc: require("@/assets/toolbar/videofusion.png"),
     isChecked: false,
   },
 });
@@ -80,9 +70,7 @@ const useToolbarState = () => {
       heatmapControl: false,
       flyLineControl: false,
       featurePointControl: false,
-      distanceBufferControl: false,
-      lightMaskControl: false,
-      citySpriteControl: false,
+      videoFusion: false,
     },
   });
 
@@ -131,6 +119,16 @@ const changeFeaturePoint = async () => {
   }
 };
 
+const changeVideoFusionState = async () => {
+  btnData.videoFusionBtn.isChecked = !btnData.videoFusionBtn.isChecked;
+
+  if (btnData.videoFusionBtn.isChecked) {
+    await addVideo();
+  } else {
+    removeVideo();
+  }
+};
+
 export {
   btnData,
   useToolbarState,
@@ -139,4 +137,5 @@ export {
   changeHeatmap,
   changeFlyline,
   changeFeaturePoint,
+  changeVideoFusionState,
 };

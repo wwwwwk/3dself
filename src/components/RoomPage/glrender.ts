@@ -1,11 +1,10 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 import { BaseThree } from "@/utils/basethree";
 import { BoxFrame } from "@/utils/boxframe";
 import { SelectObj } from "@/utils/selectobj";
 import { checkStringIncludes, getParent, getChildren } from "@/utils/utils";
-import { throttle, debounce } from "@/utils/common";
+import { throttle } from "@/utils/common";
 
 let roomGltf: THREE.Group,
   ambientLight: THREE.AmbientLight,
@@ -13,7 +12,7 @@ let roomGltf: THREE.Group,
   baseThree: BaseThree,
   boxFrame: BoxFrame,
   serverFrame: BoxFrame,
-  domElement: HTMLDivElement,
+  // domElement: HTMLDivElement,
   currentStatus: string,
   selectDoor: THREE.Object3D | null = null,
   selectServer: THREE.Object3D | null = null,
@@ -23,12 +22,13 @@ let setPopupShowState: any;
 
 const allObj: Map<string, SelectObj> = new Map();
 
-const init = (domContainer: HTMLDivElement, tmp: any) => {
+const init = async (domContainer: HTMLDivElement, tmp: any) => {
   setPopupShowState = tmp;
 
-  domElement = domContainer;
+  // domElement = domContainer;
   baseThree = new BaseThree(domContainer);
   baseThree.camera.position.set(10, 10, 10);
+  baseThree.setCameraPosition();
   const skyImg = require("@/assets/sky.webp");
   baseThree.scene.background = new THREE.TextureLoader().load(skyImg);
 
@@ -41,9 +41,9 @@ const init = (domContainer: HTMLDivElement, tmp: any) => {
   serverFrame = new BoxFrame(0xff0000);
   currentStatus = "rack";
 
-  addModel();
+  await addModel();
 
-  // addEvent(domContainer);
+  addEvent(domContainer);
 };
 
 const animate = () => {
@@ -51,24 +51,37 @@ const animate = () => {
   baseThree.renderer.render(baseThree.scene, baseThree.camera);
 };
 
-const addModel = () => {
-  new GLTFLoader().setPath("model/glb/").load("jifang.glb", (gltf) => {
-    roomGltf = gltf.scene;
-    baseThree.scene.add(roomGltf);
-    baseThree.camera.lookAt(roomGltf.position);
+const addModel = async () => {
+  const gltf = await baseThree.loadGltf("model/glb/jifang.glb");
+  roomGltf = gltf.scene;
+  baseThree.scene.add(roomGltf);
+  baseThree.camera.lookAt(roomGltf.position);
 
-    // baseThree.scene.add(new THREE.HemisphereLight(0xffffff, 0xffffff, 1));
-
-    roomGltf.traverse((item) => {
-      const objectWrap = new SelectObj(item);
-      allObj.set(item.uuid, objectWrap);
-    });
-    // console.log(allObj);
-
-    boxFrame.addToScene(baseThree.scene);
-    serverFrame.addToScene(baseThree.scene);
-    addEvent(domElement);
+  roomGltf.traverse((item) => {
+    const objectWrap = new SelectObj(item);
+    allObj.set(item.uuid, objectWrap);
   });
+
+  boxFrame.addToScene(baseThree.scene);
+  serverFrame.addToScene(baseThree.scene);
+  // addEvent(domElement);
+  // new GLTFLoader().setPath("model/glb/").load("jifang.glb", (gltf) => {
+  //   roomGltf = gltf.scene;
+  //   baseThree.scene.add(roomGltf);
+  //   baseThree.camera.lookAt(roomGltf.position);
+
+  //   // baseThree.scene.add(new THREE.HemisphereLight(0xffffff, 0xffffff, 1));
+
+  //   roomGltf.traverse((item) => {
+  //     const objectWrap = new SelectObj(item);
+  //     allObj.set(item.uuid, objectWrap);
+  //   });
+  //   // console.log(allObj);
+
+  //   boxFrame.addToScene(baseThree.scene);
+  //   serverFrame.addToScene(baseThree.scene);
+  //   addEvent(domElement);
+  // });
 };
 
 const destroy = () => {

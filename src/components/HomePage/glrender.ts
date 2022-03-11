@@ -58,6 +58,15 @@ const init = (homeContainer: HTMLDivElement) => {
   rainGeo = temp;
 
   //   console.log(rainGeo);
+
+  window.addEventListener("resize", onWindowResize);
+};
+
+const onWindowResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
 };
 
 const animate = () => {
@@ -80,6 +89,7 @@ const destroy = () => {
   rainMaterial.dispose();
   renderer.dispose();
   ambient.dispose();
+  window.removeEventListener('resize', onWindowResize);
   rainGeo.forEach((e) => {
     e.geometry.dispose();
   });

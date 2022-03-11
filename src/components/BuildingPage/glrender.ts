@@ -1,8 +1,7 @@
 import * as THREE from "three";
-import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
 import { BaseThree } from "@/utils/basethree";
+import { createVideoGeometry, destroyVideoGeometry } from "@/components/BuildingPage/videofusion";
 
 let group: THREE.Object3D,
   ambientLight: THREE.AmbientLight,
@@ -16,6 +15,7 @@ const init = (domContainer: HTMLDivElement) => {
 
   baseThree.scene.background = new THREE.Color(0x8ccde);
   baseThree.camera.position.set(60, 25, -40);
+  baseThree.setCameraPosition();
 
   directionalLight1 = new THREE.DirectionalLight(0xffeeff, 0.8);
   directionalLight1.position.set(1, 1, 1);
@@ -34,32 +34,21 @@ const init = (domContainer: HTMLDivElement) => {
   addModel();
 };
 
-const addModel = () => {
+const addModel = async () => {
   const starImg = require("@/assets/city/star.jpg");
   const cubeMap = new THREE.CubeTextureLoader().load(
     new Array(6).fill(starImg)
   );
-  // cubeMap.encoding = THREE.RGBM16Encoding;
-  new MTLLoader().setPath("model/").load("city.mtl", (materials) => {
-    materials.preload();
-    new OBJLoader()
-      .setMaterials(materials)
-      .setPath("model/")
-      .load("city.obj", (object) => {
-        // console.log(object);
-        object.traverse((child: any) => {
-          if (child.isMesh) {
-            child.material.envMap = cubeMap;
-            // child.material.needsUpdate = true;
-          }
-        });
-
-        group.add(object);
-        // console.log(group);
-        group.position.set(-30, 0, -31);
-        baseThree.camera.lookAt(group.position);
-      });
+  const object = await baseThree.loadObj("model/city.mtl", "model/city.obj");
+  object.traverse((child: any) => {
+    if (child.isMesh) {
+      child.material.envMap = cubeMap;
+    }
   });
+  
+  group.add(object);
+  group.position.set(-30, 0, -31);
+  baseThree.camera.lookAt(group.position);
 };
 
 const animate = () => {
@@ -68,11 +57,21 @@ const animate = () => {
   baseThree.orbitControl.update();
 };
 
+const addVideo = async () => {
+  const mesh = await createVideoGeometry();
+  baseThree.scene.add(mesh);
+};
+
+const removeVideo = () => {
+  destroyVideoGeometry(baseThree.scene);
+};
+
 const destroy = () => {
   cancelAnimationFrame(animateFrame);
   ambientLight.dispose();
   directionalLight1.dispose();
   directionalLight2.dispose();
+  removeVideo();
   group.children.forEach((item: any) => {
     item.children.forEach((subItem: any) => {
       subItem.geometry.dispose();
@@ -82,4 +81,4 @@ const destroy = () => {
   baseThree.destroy();
 };
 
-export { init, animate, destroy };
+export { init, animate, destroy, addVideo, removeVideo, baseThree };
