@@ -1,22 +1,26 @@
 import * as THREE from "three";
 
 const vs = `
-  varying vec2 vUv;
   void main() {
-    vUv = uv;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
 const fs = `
-  uniform vec3 u_color;
+  precision highp float;
+
+  uniform float time;
+  uniform vec2 resolution;
   uniform sampler2D backgroundTexture;
-  varying vec2 vUv;
-  uniform float offsetX;
-  uniform float offsetY;
 
   void main() {
-    gl_FragColor = texture2D(backgroundTexture, vec2(vUv.x + offsetX, vUv.y + offsetY));
+    vec2 cPos = 2.0 * gl_FragCoord.xy / resolution.xy;
+    float cLength = length(cPos);
+
+    vec2 uv = gl_FragCoord.xy / resolution.xy + (cPos / cLength) * cos(cLength * 12.0 - time * 4.0) * 0.03;
+    vec3 color = texture2D(backgroundTexture, uv).xyz;
+
+    gl_FragColor = vec4(color, 1.0);
   }
 `;
 
@@ -39,10 +43,9 @@ const setWater = (result: any[]) => {
     const geometry = new THREE.ShapeGeometry(shape);
     const material = new THREE.ShaderMaterial({
       uniforms: {
-        offsetX: { value: 0.1 },
         backgroundTexture: { value: waterNormalTexture },
-        u_color: { value: new THREE.Color(1, 1, 1) },
-        offsetY: { value: 0.3 },
+        time: { value: -1 },
+        resolution: { value: new THREE.Vector2(225, 225) },
       },
       vertexShader: vs,
       fragmentShader: fs,
@@ -53,7 +56,7 @@ const setWater = (result: any[]) => {
   }
 
   waterMesh = resultMesh;
-  console.log(waterMesh);
+  // console.log(waterMesh);
 
   updateWater();
 
@@ -61,18 +64,12 @@ const setWater = (result: any[]) => {
 };
 
 const updateWater = () => {
-  let offsetX = 0.0;
-  let offsetY = 0.0;
+  let time = -1;
   const updateAction = () => {
-    // const time = performance.now() * 0.001;
     for (let i = 0; i < waterMesh.children.length; i++) {
-      if (offsetX > 1) offsetX = 0;
-      offsetX += 0.001;
-      if (offsetY > 1) offsetY = 0;
+      time += 0.004;
       // @ts-ignore
-      waterMesh.children[i].material.uniforms.offsetX.value = offsetX;
-      // @ts-ignore
-      waterMesh.children[i].material.uniforms.offsetY.value = offsetX;
+      waterMesh.children[i].material.uniforms.time.value = time;
     }
   };
   const animation = () => {
