@@ -2,7 +2,8 @@ import * as THREE from "three";
 
 import { Water } from "three/examples/jsm/objects/Water";
 
-import { FlyLine } from "@/components/Earth/flyline";
+// import { FlyLine } from "@/components/Earth/flyline";
+import { FlyLine } from "@/components/Earth/line";
 
 const vs = `
   varying vec2 vUv;
@@ -147,7 +148,6 @@ const setAreaMesh = (result: any[]) => {
 };
 
 const setStreet = (result: any[]) => {
-  flyLine = new FlyLine(1, [], 2000);
   const resultMesh = new THREE.Mesh();
   const flyLineData = [];
   const colorData = [];
@@ -158,19 +158,22 @@ const setStreet = (result: any[]) => {
         new THREE.Vector3(result[i].position[j], result[i].position[j + 1], 0)
       );
       colorData.push(
-        new THREE.Vector3(Math.random(), Math.random(), Math.random())
+        new THREE.Color(Math.random(), Math.random(), Math.random())
       );
     }
+    // console.log(tmp);
     const curve = new THREE.CatmullRomCurve3(tmp);
 
-    const points = curve.getPoints(2000);
+    const points = curve.getPoints(50);
+    // console.log(points);
     flyLineData.push(points);
   }
+  flyLine = new FlyLine(1, [], 100, 0.4);
   flyLine.setParticles(flyLineData, colorData);
   for (let i = 0; i < flyLine.particles.length; i++) {
     resultMesh.add(flyLine.particles[i]);
   }
-  flyLine.moveAction({ time: 0.0 }, { time: 0.6 }, 10000);
+  flyLine.moveAction({ time: 0.0 }, { time: 1.0 }, 2000);
 
   streetMesh = resultMesh;
 

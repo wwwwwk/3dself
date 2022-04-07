@@ -1,5 +1,5 @@
 <template>
-  <div class="earth-container" ref="earthContainer"></div>
+<div class="gongfang-container" ref="gongfangContainer"></div>
 </template>
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount, inject } from "vue";
@@ -8,11 +8,11 @@ import { btnData } from "@/components/Layout/ToolBar/main";
 
 const setCurrentSceneState: any = inject("setCurrentSceneState");
 
-const earthContainer = ref();
+const gongfangContainer = ref();
 
 onMounted(async () => {
-  // btnData.rotateBtn.isChecked = true;
-  init(earthContainer.value);
+  btnData.rotateBtn.isChecked = true;
+  init(gongfangContainer.value);
   animate();
   setCurrentSceneState(baseThree);
   // console.log(currentScene.scene);
@@ -25,7 +25,7 @@ onBeforeUnmount(() => {
 });
 </script>
 <style lang="less" scoped>
-.earth-container {
+.gongfang-container {
   width: 100%;
   height: 100%;
 }

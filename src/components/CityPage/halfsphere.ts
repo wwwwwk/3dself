@@ -67,8 +67,6 @@ const fs = `
   }
   
   void main() {
-    // 使用 vUv 替代 gl_FragCoord, 否则会以摄像机的角度绘制平面纹理
-    // vec2 st = gl_FragCoord.xy/u_resolution.xy;
     vec2 st = vUv * 1.0;
     st.x *= u_resolution.x / u_resolution.y;
     vec3 color = vec3(0.0);

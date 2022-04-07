@@ -27,12 +27,16 @@ export default {
         path: "/city",
       },
       {
+        name: "攻防",
+        path: "/gongfang",
+      },
+      {
         name: "建筑",
-        path: "building",
+        path: "/building",
       },
       {
         name: "房间",
-        path: "room",
+        path: "/room",
       },
     ];
 

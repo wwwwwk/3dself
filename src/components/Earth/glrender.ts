@@ -6,7 +6,8 @@ import { bloomLayerNum, initBloom, render } from "@/utils/setbloom";
 import { setEarthSphere } from "@/components/Earth/earthsphere";
 
 import { Heatmap } from "@/components/Earth/heatmap";
-import { FlyLine } from "@/components/Earth/flyline";
+// import { FlyLine } from "@/components/Earth/flyline";
+import { FlyLine } from "@/components/Earth/line";
 import { FeaturePoi } from "@/components/Earth/featurepoint";
 
 let earth: THREE.Mesh<THREE.SphereGeometry, THREE.Material>,
@@ -128,9 +129,9 @@ const openFlyline = async () => {
       to: [115.258, 26.134],
     },
   ];
-  const color = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(1, 0, 0)];
+  const color = [new THREE.Color(1, 0, 0), new THREE.Color(1, 0, 0)];
 
-  flyLine = new FlyLine(10, resData, 500);
+  flyLine = new FlyLine(10, resData, 500, 0.2);
   const points = flyLine.getPoints();
 
   flyLine.setParticles(points, color);
@@ -138,7 +139,7 @@ const openFlyline = async () => {
   flyLine.addFromScene(earth);
 
   // flyLine.updateParticles();
-  flyLine.moveAction({ time: 0.0 }, { time: 0.66 }, 1000);
+  flyLine.moveAction({ time: 0.0 }, { time: 1.0 }, 1000);
 };
 
 const closeFlyline = () => {

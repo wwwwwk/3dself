@@ -40,7 +40,7 @@ const initCanvas = () => {
   const texture = new THREE.CanvasTexture(canvas);
   texture.magFilter = THREE.NearestFilter;
   texture.minFilter = THREE.NearestFilter;
-  document.body.appendChild(canvas);
+  // document.body.appendChild(canvas);
   return texture;
 };
 
