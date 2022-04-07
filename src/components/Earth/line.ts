@@ -191,7 +191,7 @@ class FlyLine {
         },
         transparent: true,
         side: THREE.DoubleSide,
-        depthTest: false
+        // depthTest: false
       });
       // const material = new THREE.MeshBasicMaterial({color: 0xff0000});
       const mesh = new THREE.Mesh(geometry, material);
